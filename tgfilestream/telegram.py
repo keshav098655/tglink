@@ -51,9 +51,13 @@ async def handle_message(evt: events.NewMessage.Event) -> None:
         else:
             await evt.reply(start_message)
         return
-    url = public_url / str(pack_id(evt)) / get_file_name(evt)
+    file_id = str(pack_id(evt))
+    url = public_url / file_id / get_file_name(evt)
     rep_message = ""
-    rep_message += f"Link to download file: {url}"
+    rep_message += f"Link to download file: {url}\n\n"
+    my_username_e = await evt.client.get_me()
+    my_username = my_username_e.username
+    rep_message += f"Shareable Telegram Link: https://t.me/{my_username}?start={file_id}"
     await evt.reply(rep_message)
     log.info(f"Replied with link for {evt.id} to {evt.from_id} in {evt.chat_id}")
     log.debug(f"Link to {evt.id} in {evt.chat_id}: {url}")
