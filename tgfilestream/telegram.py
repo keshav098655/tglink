@@ -40,9 +40,20 @@ async def handle_message(evt: events.NewMessage.Event) -> None:
         await evt.reply(group_chat_message)
         return
     if not evt.file:
-        await evt.reply(start_message)
+        if evt.message.message.startswith("/start "):
+            file_id = evt.message.message.split(" ", maxsplit=1)[1]
+            peer, msg_id = unpack_id(int(file_id))
+            if not peer or not msg_id:
+                await evt.reply(start_message)
+            else:
+                message = cast(Message, await client.get_messages(entity=peer, ids=msg_id))
+                await evt.reply(message)
+        else:
+            await evt.reply(start_message)
         return
     url = public_url / str(pack_id(evt)) / get_file_name(evt)
-    await evt.reply(f"Link to download file: [{url}]({url})")
+    rep_message = ""
+    rep_message += f"Link to download file: {url}"
+    await evt.reply(rep_message)
     log.info(f"Replied with link for {evt.id} to {evt.from_id} in {evt.chat_id}")
     log.debug(f"Link to {evt.id} in {evt.chat_id}: {url}")
