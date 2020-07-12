@@ -43,13 +43,11 @@ async def handle_message(evt: events.NewMessage.Event) -> None:
         if evt.message.message.startswith("/start "):
             file_id = evt.message.message.split(" ", maxsplit=1)[1]
             peer, msg_id = unpack_id(int(file_id))
-            if not peer or not msg_id:
-                await evt.reply(start_message)
-            else:
+            if peer and msg_id:
                 message = cast(Message, await client.get_messages(entity=peer, ids=msg_id))
                 await evt.reply(message)
-        else:
-            await evt.reply(start_message)
+                return
+        await evt.reply(start_message)
         return
     file_id = str(pack_id(evt))
     url = public_url / file_id / get_file_name(evt)
